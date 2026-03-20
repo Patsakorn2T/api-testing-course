@@ -1,0 +1,57 @@
+info:
+  name: Create Order
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/orders"
+  headers:
+    - name: Authorization
+      value: Bearer {{accessToken}}
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "itemId": {{itemId}},
+        "quantity": 1
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        if (body.orderId) {
+          bru.setEnvVar("orderId", body.orderId);
+        }
+    - type: tests
+      code: |-
+        test("status should be 200", function () {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        const body = res.getBody();
+        const expectedPrice = Number(bru.getEnvVar("itemPrice")) * 1;
+
+        test("response should contain orderId", function () {
+          expect(body.orderId).to.be.a("string");
+        });
+
+        test("status field should be created", function () {
+          expect(body.status).to.equal("created");
+        });
+
+        test("totalPrice should match expected business price", function () {
+          expect(body.totalPrice).to.equal(expectedPrice);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

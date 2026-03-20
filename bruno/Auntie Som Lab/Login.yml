@@ -1,0 +1,48 @@
+info:
+  name: Login
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "username": "student",
+        "password": "hungry"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        if (body.accessToken) {
+          bru.setEnvVar("accessToken", body.accessToken);
+        }
+    - type: tests
+      code: |-
+        test("status should be 200", function () {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        const body = res.getBody();
+
+        test("response should contain accessToken", function () {
+          expect(body.accessToken).to.be.a("string");
+          expect(body.accessToken.length).to.be.greaterThan(0);
+        });
+
+        test("expiresIn should be 3600", function () {
+          expect(body.expiresIn).to.equal(3600);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

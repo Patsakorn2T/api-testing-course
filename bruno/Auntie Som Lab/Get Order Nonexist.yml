@@ -1,0 +1,38 @@
+info:
+  name: Get Order Nonexist
+  type: http
+  seq: 5
+
+http:
+  method: GET
+  url: "{{baseUrl}}/orders/nonexistOrder"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        if (body && body.length > 0) {
+          bru.setEnvVar("itemId", body[0].id);
+          bru.setEnvVar("itemPrice", body[0].price);
+          bru.setEnvVar("itemStock", body[0].stock);
+        }
+    - type: tests
+      code: |-
+        test("nonexistent order should return 404", function () {
+          expect(res.getStatus()).to.equal(404);
+        });
+
+        const body = res.getBody();
+
+        test("should return order not found error", function () {
+          expect(body.error).to.equal("Order not found");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,41 @@
+info:
+  name: Create Order No Item
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: "{{baseUrl}}/orders"
+  headers:
+    - name: Authorization
+      value: Bearer {{accessToken}}
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "itemId": 999,
+        "quantity": 1
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("invalid item should return 404", function () {
+          expect(res.getStatus()).to.equal(404);
+        });
+
+        const body = res.getBody();
+
+        test("error should say item not found", function () {
+          expect(body.error).to.equal("Item not found");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

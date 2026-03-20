@@ -1,0 +1,41 @@
+info:
+  name: Create Order Over Stock
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: "{{baseUrl}}/orders"
+  headers:
+    - name: Authorization
+      value: Bearer {{accessToken}}
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "itemId": {{itemId}},
+        "quantity": 999
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("should reject when ordering more than stock", function () {
+          expect(res.getStatus()).to.be.oneOf([400, 422]);
+        });
+
+        const body = res.getBody();
+
+        test("should NOT create order", function () {
+          expect(body.status).to.not.equal("created");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

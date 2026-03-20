@@ -1,0 +1,36 @@
+info:
+  name: Create Order No Auth
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{baseUrl}}/orders"
+  body:
+    type: json
+    data: |-
+      {
+        "itemId": {{itemId}},
+        "quantity": 1
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("should reject missing token", function () {
+          expect(res.getStatus()).to.equal(401);
+        });
+
+        const body = res.getBody();
+
+        test("should return Unauthorized message", function () {
+          expect(body.error).to.equal("Unauthorized");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

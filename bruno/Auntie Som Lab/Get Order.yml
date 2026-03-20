@@ -1,0 +1,46 @@
+info:
+  name: Get Order
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{baseUrl}}/orders/{{orderId}}"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        if (body && body.length > 0) {
+          bru.setEnvVar("itemId", body[0].id);
+          bru.setEnvVar("itemPrice", body[0].price);
+          bru.setEnvVar("itemStock", body[0].stock);
+        }
+    - type: tests
+      code: |-
+        test("should get existing order", function () {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        const body = res.getBody();
+
+        test("returned orderId should match saved orderId", function () {
+          expect(body.orderId).to.equal(bru.getEnvVar("orderId"));
+        });
+
+        test("status should be created", function () {
+          expect(body.status).to.equal("created");
+        });
+
+        test("response should contain totalPrice", function () {
+          expect(body.totalPrice).to.be.a("number");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
