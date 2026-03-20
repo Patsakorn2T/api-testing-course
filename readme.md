@@ -5,17 +5,14 @@
 1. **Price calculation is wrong**
    - Ordered Tom Yum (price 50) with quantity 1
    - API returned 45 instead of 50
-   - So the system is subtracting something weird
 
 2. **Can order more than stock**
    - Tried ordering way more than available stock
    - API still created the order
-   - Stock system is broken
 
 3. **Non-existent order returns 200**
    - When I request an order that doesn't exist
    - It returns 200 instead of 404
-   - Not correct behavior
 
 ---
 
