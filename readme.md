@@ -9,7 +9,7 @@
 
 2. **Can order more than stock**
    - Tried ordering way more than available stock
-   - API still created the order 😅
+   - API still created the order
    - Stock system is broken
 
 3. **Non-existent order returns 200**
